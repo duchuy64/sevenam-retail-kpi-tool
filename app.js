@@ -376,7 +376,7 @@
   }
 
   // ---------- CANVAS HELPERS ----------
-  function canvasWeight(weight='400'){const w=String(weight);return (w==='800'||w==='700'||w==='600')?'700':'400';}
+  function canvasWeight(weight='400'){return String(weight)==='700'?'700':'400';}
   function ctxFont(ctx,size,weight='400'){ctx.font=`${canvasWeight(weight)} ${size}px ${FONT_STACK}`;ctx.textBaseline='top';ctx.fontKerning='normal';}
   function text(ctx,s,x,y,size=16,color=C.text,weight='400',align='left'){ctx.save();ctxFont(ctx,size,weight);ctx.fillStyle=color;ctx.textAlign=align;ctx.fillText(String(s),x,y);ctx.restore();}
   function textMiddle(ctx,s,x,y,size=16,color=C.text,weight='700',align='center'){ctx.save();ctx.font=`${canvasWeight(weight)} ${size}px ${FONT_STACK}`;ctx.textBaseline='middle';ctx.textAlign=align;ctx.fillStyle=color;ctx.fillText(String(s),x,y);ctx.restore();}
@@ -467,8 +467,8 @@
   function drawDashboard(ctx,m){
     drawBackground(ctx);
     // HEADER
-    fitText(ctx,'KPI HIỆU SUẤT',26,14,300,43,'#fff','800');
-    fitText(ctx,'HỆ THỐNG BÁN LẺ',329,14,520,43,'#079de8','800');
+    fitText(ctx,'KPI HIỆU SUẤT',26,14,300,43,'#fff','700');
+    fitText(ctx,'HỆ THỐNG BÁN LẺ',329,14,520,43,'#079de8','700');
     text(ctx,'THEO DÕI % HOÀN THÀNH THEO CỬA HÀNG',26,66,21,'#f1f4f6','700');
     // Compact update card: shrink background to content and center the whole icon + text group.
     const updX=1200, updY=8, updW=312, updH=84;
@@ -519,14 +519,26 @@
 
     // LEFT TABLE — sorted descending by completion.
     const lx=23,ly=241,lw=880,lh=680;shadowCard(ctx,lx,ly,lw,lh,10);ctx.save();ctx.fillStyle=gradient(ctx,lx,ly,lw,47,'#0b437e','#0c3b70');ctx.beginPath();ctx.roundRect(lx,ly,lw,47,[10,10,0,0]);ctx.fill();ctx.restore();
-    text(ctx,'STT',45,257,15.5,'#fff','700');text(ctx,'CỬA HÀNG',104,257,15.5,'#fff','700');text(ctx,'TỶ LỆ HOÀN THÀNH',374,249,14.5,'#fff','700','center');text(ctx,'(% THỰC ĐẠT / TARGET THÁNG)',374,269,11.5,'#dbe9f7','700','center');text(ctx,'TRẠNG THÁI',680,257,15.5,'#fff','700');
-    const rowH=35.6, startY=289; const xBar=301,barW=346;
+    // Column order: STT | Cửa hàng | % | Tiến độ | +/- TG | Trạng thái.
+    text(ctx,'STT',56,257,15.5,'#fff','700','center');
+    text(ctx,'CỬA HÀNG',100,257,15.5,'#fff','700');
+    text(ctx,'%',305,257,16,'#fff','700','center');
+    text(ctx,'TIẾN ĐỘ',499,249,14.5,'#fff','700','center');
+    text(ctx,'THỰC ĐẠT / TARGET THÁNG',499,269,11.5,'#dbe9f7','700','center');
+    text(ctx,'+/- TG',704,257,14.5,'#fff','700','center');
+    text(ctx,'TRẠNG THÁI',824,257,14.5,'#fff','700','center');
+    const rowH=35.6, startY=289; const xBar=340,barW=318;
     m.sorted.forEach((r,i)=>{
       const ry=startY+i*rowH;if(i>0)line(ctx,lx+18,ry,lx+lw-18,ry,'#dfe2e5',1);
-      circle(ctx,56,ry+18,13,r.status.color);textMiddle(ctx,i+1,56,ry+18.5,14.5,'#fff','700','center');fitText(ctx,r.name,100,ry+8,185,17,C.ink,'700');
-      progress(ctx,xBar,ry+13,barW,12,r.pct,r.status.color,m.timeProgress);text(ctx,fmtPct(r.pct,0),678,ry+9,18,r.status.color,'700');circle(ctx,752,ry+18,5.8,r.status.color);fitTextMiddle(ctx,statusDisplay(r.timeDiff),766,ry+18.5,119,14.2,r.status.color,'700','left',12.8);
+      circle(ctx,56,ry+18,13,r.status.color);textMiddle(ctx,i+1,56,ry+18.5,14.5,'#fff','700','center');
+      fitText(ctx,r.name,100,ry+7,185,19.5,C.ink,'700','left',16.5);
+      text(ctx,fmtPct(r.pct,0),305,ry+7,21,r.status.color,'700','center');
+      progress(ctx,xBar,ry+13,barW,12,r.pct,r.status.color,m.timeProgress);
+      text(ctx,fmtStatusDelta(r.timeDiff),704,ry+9,15.5,r.status.color,'700','center');
+      circle(ctx,772,ry+18,5.5,r.status.color);
+      fitTextMiddle(ctx,r.status.label,784,ry+18.5,104,13.8,r.status.color,'700','left',12.2);
     });
-    const axisY=876;[0,25,50,75,100].forEach(v=>{const x=xBar+barW*v/100;text(ctx,`${v}%`,x,axisY,14,C.ink,'700','center');});
+    const axisY=876;[0,25,50,75,100].forEach(v=>{const x=xBar+barW*v/100;text(ctx,`${v}%`,x,axisY,13.2,C.ink,'700','center');});
 
     // RIGHT TOP 5
     const rx=912,rw=601;shadowCard(ctx,rx,241,rw,208,10);ctx.fillStyle=gradient(ctx,rx,241,rw,44,'#0b437e','#0c3b70');ctx.beginPath();ctx.roundRect(rx,241,rw,44,[10,10,0,0]);ctx.fill();drawAssetIcon(ctx,'trophy',949,263,46);text(ctx,'TOP 5 CỬA HÀNG DẪN ĐẦU',982,250,20,'#fff','700');
